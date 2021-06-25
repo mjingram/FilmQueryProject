@@ -31,15 +31,15 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
     try {
     	
     	Connection conn = DriverManager.getConnection(URL, user, pass);
-    	String sql = "SELECT id, title, description, release_year, language_id, rental_duration, "
-        + " rental_rate, length, replacement_cost, rating, special_features "
-       +  " FROM film WHERE id = ?";
+    	String sql = "SELECT film.id, title, description, release_year, language_id, rental_duration, "
+        + " rental_rate, length, replacement_cost, rating, special_features, language.name "
+       +  " FROM film JOIN language ON film.language_id = language.id WHERE film.id = ?";
     	PreparedStatement stmt = conn.prepareStatement(sql);
     	stmt.setInt(1, filmId);
     	ResultSet filmResult = stmt.executeQuery();
     	if(filmResult.next()){
     		film = new Film();
-    		film.setFilmId(filmResult.getInt("id"));
+    		film.setFilmId(filmResult.getInt("film.id"));
     		film.setTitle(filmResult.getString("title"));
     		film.setDesc(filmResult.getString("description"));
     		film.setReleaseYear(filmResult.getShort("release_year"));
@@ -50,12 +50,52 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
     		film.setRepCost(filmResult.getDouble("replacement_cost"));
     		film.setRating(filmResult.getString("rating"));
     		film.setFeatures(filmResult.getString("special_features"));
+    		film.setLanguage(filmResult.getString("language.name"));
     		film.setActors(findActorsByFilmId(filmId));
     	}
     }catch(SQLException e) {
     	e.printStackTrace();
     }  
 	  return film;
+  }
+  
+  @Override
+  public List<Film> findFilmByKeyword(String keyword) {
+    List<Film> films = new ArrayList<>();
+    List<Actor> actors = new ArrayList<>();
+    try {
+    	
+    	Connection conn = DriverManager.getConnection(URL, user, pass);
+    	keyword = "%" + keyword + "%";
+    	String sql = "SELECT film.id, title, description, release_year, language_id, rental_duration, "
+        + " rental_rate, length, replacement_cost, rating, special_features, language.name "
+       +  " FROM film JOIN language ON film.language_id = language.id WHERE title LIKE ? OR description LIKE ?";
+    	PreparedStatement stmt = conn.prepareStatement(sql);
+    	stmt.setString(1, keyword);
+    	stmt.setString(2, keyword);
+    	ResultSet filmResult = stmt.executeQuery();
+    	while(filmResult.next()){
+    		int FilmId = filmResult.getInt("film.id");
+    		String Title = filmResult.getString("title");
+    		String Desc = filmResult.getString("description");
+    		short ReleaseYear = filmResult.getShort("release_year");
+    		int LangId = filmResult.getInt("language_id");
+    		int RentDur = filmResult.getInt("rental_duration");
+    		double Rate = filmResult.getDouble("rental_rate");
+    		int Length = filmResult.getInt("length");
+    		double RepCost = filmResult.getDouble("replacement_cost");
+    		String Rating = filmResult.getString("rating");
+    		String Features = filmResult.getString("special_features");
+    		String Language = filmResult.getString("language.name");
+    		actors = findActorsByFilmId(FilmId);
+    		Film film = new Film(FilmId, Title, Desc, ReleaseYear, LangId, RentDur, Rate,
+    				Length, RepCost, Rating, Features, Language, actors);
+    		films.add(film);
+    	}
+    }catch(SQLException e) {
+    	e.printStackTrace();
+    }  
+	  return films;
   }
 
 @Override
