@@ -1,5 +1,6 @@
 package com.skilldistillery.filmquery.app;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,10 +22,20 @@ public class FilmQueryApp {
 
   private void launch() {
     Scanner input = new Scanner(System.in);
-    
+   boolean repeat = true;
+   while(repeat) {
+    try {
     startUserInterface(input);
+    repeat = false;
+    }
+    catch(InputMismatchException e) {
+    	input.nextLine();
+    	repeat = true;
+    	System.err.println("Incorrect input.");
+    }}
     
     input.close();
+    
   }
 
   private void startUserInterface(Scanner input) {
@@ -36,12 +47,8 @@ public class FilmQueryApp {
     	System.out.println("Enter an option: ");
     	
     	select = input.nextInt();
-    	input.nextLine();
-    	if(select != (int)select){
-    		System.out.println("Please enter a number.");
-    		startUserInterface(input);
-    	}
     	
+    	input.nextLine();
     	
     	if(select == 1) {
     		lookUpFilmByIdPrompt(input);	
@@ -78,13 +85,10 @@ public class FilmQueryApp {
   }
   
   private void lookUpFilmByIdPrompt(Scanner input) {
-	  System.out.println("Enter a film ID: ");
+	  	System.out.println("Enter a film ID: ");
 		int filmID = input.nextInt();
 		input.nextLine();
-		if(filmID!=(int)filmID) {
-			System.out.println("Please enter a number.");
-			startUserInterface(input);
-		}
+		
 		Film film = db.findFilmById(filmID);
 		if(film == null) {
 			System.out.println("Film not found for id: " + filmID);
@@ -93,12 +97,10 @@ public class FilmQueryApp {
 			System.out.println(film.printFilm());
 			System.out.println();
 		}
-		
   }
   
   private void lookUpFilmByKeywordPrompt(Scanner input) {
-	  System.out.println("Enter a keyword: ");
-	
+	  	System.out.println("Enter a keyword: ");
 		String filmKeyword = input.nextLine();
 		List<Film> films = db.findFilmByKeyword(filmKeyword);
 		if(films.isEmpty()) {
@@ -111,5 +113,7 @@ public class FilmQueryApp {
 			System.out.println();
 		}
   }
+  
+
 
 }

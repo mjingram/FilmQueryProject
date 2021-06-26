@@ -51,7 +51,7 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
     		film.setRating(filmResult.getString("rating"));
     		film.setFeatures(filmResult.getString("special_features"));
     		film.setLanguage(filmResult.getString("language.name"));
-    		film.setActors(findActorsByFilmId(filmId));
+    		film.setActors(findActorsByFilmId(filmId, conn));
     	}
     }catch(SQLException e) {
     	e.printStackTrace();
@@ -87,7 +87,7 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
     		String Rating = filmResult.getString("rating");
     		String Features = filmResult.getString("special_features");
     		String Language = filmResult.getString("language.name");
-    		actors = findActorsByFilmId(FilmId);
+    		actors = findActorsByFilmId(FilmId, conn);
     		Film film = new Film(FilmId, Title, Desc, ReleaseYear, LangId, RentDur, Rate,
     				Length, RepCost, Rating, Features, Language, actors);
     		films.add(film);
@@ -123,11 +123,11 @@ public Actor findActorById(int actorId) {
 }
 
 @Override
-public List<Actor> findActorsByFilmId(int filmId) {
+public List<Actor> findActorsByFilmId(int filmId, Connection conn) {
 	List<Actor> actors = new ArrayList<>();
 	  try {
 
-	    Connection conn = DriverManager.getConnection(URL, user, pass);
+//	    Connection conn = DriverManager.getConnection(URL, user, pass);
 	    String sql = "SELECT id, first_name, last_name FROM actor "
 	    		+ "JOIN film_actor ON actor.id = film_actor.actor_id "
 	               + " WHERE film_id = ?";
