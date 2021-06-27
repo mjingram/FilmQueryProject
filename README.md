@@ -16,7 +16,7 @@ a query is performed inside of the main film search methods.
 
 ### Lessons Learned
 
-Connecting to a java program to a SQL database, how to prevent SQL injection with prepared statements, 
+Connecting a java program to a SQL database, how to prevent SQL injection with prepared statements, 
 object relational mapping of sql data to java objects and working with maven for dependencies.
 
 
